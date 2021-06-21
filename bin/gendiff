@@ -2,11 +2,36 @@
 
 const { Command } = require('commander');
 const program = new Command();
+const fs = require('fs')
+const path = require('path')
+const genDiff = require('../src')
+
 program
     .version('0.0.1')
-    .usage("[options] <filepath1> <filepath2>")
+    .arguments('<filepath1> <filepath2>')
     .description('Compares two configuration files and shows a difference.')
     .option('-f, --format [type]',  'output format')
+    .action((filepath1, filepath2, options) => {
+        if(path.extname(filepath1) !== '.json' || path.extname(filepath2) !== '.json') {
+            console.log('Gendiff works only with json files now')
+            return
+        }
+        try {
+            const file1 = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), filepath1)), 'utf8')
+            const file2 = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), filepath2)), 'utf8')
+
+            genDiff(file1, file2)
+
+        } catch (err) {
+            console.log('lol ===> ', err)
+        }
+
+        }
+
+    )
+
+
 
 program.parse(process.argv);
 
+// console.log(program.opts().format)
